@@ -1,1 +1,1 @@
-from .get_intermediate_layer import get_intermediate_layer
+from .feature_extract import feature_extract, get_intermediate_layer, visualize_features 
