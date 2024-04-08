@@ -74,6 +74,6 @@ def test_densenet121():
 
     output_data = get_intermediate_layer(model=model, layer_to_hook=model.features.conv0, inputs=input_data)
 
+    assert output_data is not None
 
     return
-
