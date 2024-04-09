@@ -1,6 +1,9 @@
 import torch
+from torchvision import transforms
+from torchvision.models.feature_extraction import create_feature_extractor
+from PIL import Image
+
 from typing import Optional, Dict, Tuple
-from torchvision.models.feature_extraction import create_feature_extractor, get_graph_node_names
 import matplotlib.pyplot as plt
 
 def feature_extract(model: torch.nn.Module, layers: Dict[str,str], input: torch.tensor) -> Tuple[Dict[str, torch.tensor], torch.fx.GraphModule]:
@@ -88,3 +91,31 @@ def visualize_features(features: torch.tensor, save_path: Optional[str] = None):
             plt.savefig(filename, bbox_inches='tight')
 
     return 
+
+
+def get_feature_vector(img_path: str, model:torch.nn.Module, layer: str) -> torch.tensor:
+    """Get the feature vector for an image from a particular layer
+    """
+
+    img = Image.open(img_path)
+
+    transform = transforms.Compose([
+    transforms.Resize(256),                           # Resize to 256 x 256
+    transforms.CenterCrop(224),                        # Crop the center 224x224 region
+    transforms.ToTensor(),                             # Convert PIL image to tensor
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+
+    img_tensor = transform(img).unsqueeze(0)
+
+    feature_extractor = create_feature_extractor(model, {layer:layer})
+
+    features_tensor = feature_extractor(img_tensor)[layer]
+
+    m = torch.nn.AvgPool2d(features_tensor.shape[2:])
+
+    output = m(features_tensor).squeeze()
+
+    return output
+
