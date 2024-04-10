@@ -33,6 +33,7 @@ def main():
     model = load_model(args.model_name)
     if model:
         print(f"Successfully loaded '{args.model_name}'.")
+        model.eval()
 
     if hasattr(model, args.layer):
         print(f"{args.layer} exists in model, proceeding...")
